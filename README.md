@@ -6,6 +6,7 @@ ChatGPT로 초벌 번역 후, 일부 어색한 번역을 수정하였습니다.
 
 * (게임 설치 경로가 `C:\Program Files (x86)\Steam\steamapps\common\Backpack Battles Demo`가 아닐 경우) patch.bat을 메모장으로 열어 경로 변경
 * patch.bat 클릭
+* 게임 시작 => 설정 => 중국어 선택
 
 # 번역 생성 방법
 
