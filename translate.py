@@ -228,7 +228,7 @@ def parse_resource(path: str) -> Resource:
                     length = r.get_u32()
                     return [r.get_i32() for _ in range(length)]
                 case _:
-                    print('....', prop_type)
+                    print('unknown prop type', prop_type)
 
         external_resources: list[tuple[...]] = []
         ext_resources_size = r.get_u32()
@@ -261,7 +261,6 @@ def parse_resource(path: str) -> Resource:
                 name = _parse_name()
                 value = _parse_value()
                 properties[name] = value
-            print(properties)
             if main:
                 return Resource(version_major, version_minor, format_version, importmd_ofs, class_name, flags, string_map, properties)
         return resources
@@ -427,7 +426,6 @@ class BinaryTranslate:
                 new_bucket_table[bucket_idx + 2 + 4*i + 3] = el.uncomp_size
         self.bucket_table = new_bucket_table
         self.strings = new_strings
-        print(old_strings[:30], new_strings[:30])
 
 
 load_dotenv()
@@ -447,7 +445,6 @@ def gpt(query: str) -> str:
         content = part.choices[0].delta.content
         if content is not None:
             msgs.append(content)
-            print(content, end='')
     return ''.join(msgs)
 
 if __name__ == '__main__':
@@ -455,14 +452,13 @@ if __name__ == '__main__':
     if command == 'recognize':
         path = sys.argv[2]
         messages = BinaryTranslate(path).get_messages()
-        print(messages)
     if command == 'translate':
         for root, dirs, files in os.walk('extracted'):
             for name in files:
                 path = os.path.join(root, name)
                 messages = BinaryTranslate(path).get_messages()
                 messages = [m.replace('\n', '<br>') for m in messages]
-                print(path, '\n\n\n')
+                print('translate', path, '\n')
 
                 context = "I would like to translate the game's dialogue and terminology into Korean. It's a turn-based game where cute girls fight one-on-one. Words enclosed in curly brackets (e.g. {stamina}) or words beginning with $ (e.g. $item) should not be translated because they are substituted during runtime. If a word begins with $ and is enclosed in square brackets, the words within the square brackets must be translated taking the entire sentence into account(e.g. in the $h[inventory] => $h[인벤토리] 안에). If you have a word starting with $ in square brackets with another word, you should not translate the word starting with $, but translate the other word (ex $c[Weapon sockets: $item] should be translated to $c[무기 소켓: $item]). $p1, $p2, $p3, ... $pn are numeric variables (i.e. they should not be translated but should be considered numbers). $p1s, $p2s, .. should be translated as $p1초, $p2초, .. . If you encounter a blank line, do not skip it but return it. Don't give context to the results (e.g. 'Here is your requested blabla ..'), just the results. Now, as I said, please translate the following sentences line by line into Korean."
                 joined_messages = '\n'.join(f'{i}: {m}' for i, m in enumerate(messages))
@@ -492,5 +488,5 @@ if __name__ == '__main__':
                     resource.replace(messages)
                     resource.locale = 'zh'
                     path = os.path.join(root.replace('extracted', 'overrides'), name.replace('.en.', '.zh.'))
-                    print(path)
+                    print('apply to', path)
                     resource.save(path)
