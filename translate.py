@@ -477,6 +477,7 @@ if __name__ == '__main__':
                 with open(output_path, 'w') as f:
                     f.write(translated)
     elif command == 'apply':
+        locale = sys.argv[2]
         for root, dirs, files in os.walk('extracted'):
             for name in files:
                 path = os.path.join(root, name)
@@ -486,7 +487,7 @@ if __name__ == '__main__':
                     lines = [line.strip('\n') for line in f.readlines() if len(line) > 1]
                     messages = [[*line.split(':', 1), ''][1].strip().replace('<br>', '\n') for line in lines]
                     resource.replace(messages)
-                    resource.locale = 'zh'
-                    path = os.path.join(root.replace('extracted', 'overrides'), name.replace('.en.', '.zh.'))
+                    resource.locale = locale
+                    path = os.path.join(root.replace('extracted', f'overrides-{locale}'), name.replace('.en.', f'.{locale}.'))
                     print('apply to', path)
                     resource.save(path)
